@@ -3,23 +3,29 @@
    if not disabled in the whole file, it would have to 
    be filles with tslint:disable* directives */
 
-import {LIBRARY} from './index';
+import {LIBRARY, Controls, Validations} from './index';
 
 export type ID = string;
 
-export type AnyProp = {[k: string]: any};
-
-export enum Controls {TextLine, RichTextArea, Integer, checkbox};
-
-export enum Validations {NotEmpty};
+export interface TypedMap<T> {
+    [k: string]: T
+}
 
 export class ContentType {
 
 
-    constructor(private id: ID){}
+    constructor(private id: ID, private _constructor: Function, private fields: TypedMap<Field>){}
 
     public get Id(){
         return this.id;
+    }
+
+    public get Class(){
+        return this._constructor;
+    }
+
+    public get Fields(){
+        return this.fields;
     }
 }
 
@@ -31,7 +37,20 @@ export class Schema {
 
 export class Field {
 
-    constructor(public id: ID){}
+    constructor(private id: ID, private control: Controls, private validatons: Validations[]){}
+
+    public get Id(){
+        return this.id;
+    }
+
+    public get Control(){
+        return this.control;
+    }
+
+    public get Validations(){
+        return this.validatons;
+    }
+
 }
 
 export class ContentItem {
@@ -41,7 +60,7 @@ export class ContentItem {
 
 export class SchemaRegistry{
 
-    private _contenTypes: {[k: string]: ContentType}={}
+    private _contenTypes: TypedMap<ContentType> = {}
 
     get ContentTypes() { return this._contenTypes};
 
