@@ -5,7 +5,7 @@
 
 import {LIBRARY, Controls, Validations} from './index';
 
-export type ID = string;
+export type IdType = string;
 
 export interface TypedMap<T> {
     [k: string]: T
@@ -13,10 +13,14 @@ export interface TypedMap<T> {
 
 export class Schema {
 
-    constructor(private id: ID, private _constructor: Function, private fields: TypedMap<Field>){}
+    constructor(private id: IdType,  private uniqueIdField: string, private _constructor: Function, private fields: TypedMap<Field>){}
 
     public get Id(){
         return this.id;
+    }
+
+    public get UniqueIdField(){
+        return this.uniqueIdField;
     }
 
     public get Class(){
@@ -30,7 +34,7 @@ export class Schema {
 
 export class Field {
 
-    constructor(private id: ID, private control: Controls, private validatons: Validations[]){}
+    constructor(private id: IdType, private control: Controls, private validatons: Validations[]){}
 
     public get Id(){
         return this.id;
@@ -48,7 +52,7 @@ export class Field {
 
 export class ContentItem {
 
-    constructor(public id: ID){}
+    constructor(public id: IdType){}
 }
 
 export class SchemaRegistry{
@@ -57,7 +61,7 @@ export class SchemaRegistry{
 
     get Schemas() { return this._schemas};
 
-    addSchema(id: ID, ct: Schema): void{
+    addSchema(id: IdType, ct: Schema): void{
         if (this._schemas[id]){
 
             throw new Error(`${LIBRARY.name}: ContentType '${id}' already defined.`);

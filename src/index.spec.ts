@@ -5,13 +5,13 @@
 
 import test from 'ava';
 import "reflect-metadata";
-import { ID, Id, Schema, Controls, Field, Registry, Validations } from './index';
+import { IdType, Id, Schema, Controls, Field, Registry, Validations } from './index';
 
 @Schema("basketball-player")
 class BasketBallPlayer {
 
   @Id @Field()
-  id: ID | null = null;
+  UUID: IdType | null = null;
 
   @Field(Controls.TextLine, [Validations.NotEmpty])
   name: string | null = null;
@@ -44,9 +44,10 @@ test('Content-type "basketball-player" has specified fields', t => {
   const name = 'basketball-player';
   const bpMeta = Registry.Schemas[name];
   
-  t.is(bpMeta.Fields['id'].Id, 'id');
-  t.is(bpMeta.Fields['id'].Control, Controls.None);
-  t.deepEqual(bpMeta.Fields['id'].Validations, []);
+  t.is(bpMeta.UniqueIdField, 'UUID');
+  t.is(bpMeta.Fields['UUID'].Id, 'UUID');
+  t.is(bpMeta.Fields['UUID'].Control, Controls.None);
+  t.deepEqual(bpMeta.Fields['UUID'].Validations, []);
 
   t.is(bpMeta.Fields['name'].Id, 'name');
   t.is(bpMeta.Fields['name'].Control, Controls.TextLine);

@@ -2,11 +2,11 @@
 /* This as meta-programming break all sensible rules
    if not disabled in the whole file, it would have to 
    be filles with tslint:disable* directives */
-import {ID, SchemaRegistry, Schema as MetaSchema, Field as MetaField, TypedMap} from './types';
+import {IdType, SchemaRegistry, Schema as MetaSchema, Field as MetaField, TypedMap} from './types';
 import "reflect-metadata";
 
 //Re-export
-export {ID} from './types'; 
+export {IdType} from './types'; 
 
 export const LIBRARY: {name: string, version: string} = {name: 'SchemaBuilder', version: '0.0.1'};
 
@@ -27,7 +27,7 @@ export function Id(target: any, propertyKey: string){
     }
 }
 
-export function Schema(id: ID) {
+export function Schema(id: IdType) {
 /**
  *  Decorator Factory
  */
@@ -42,7 +42,15 @@ export function Schema(id: ID) {
             fields = {};
         }
         
-        const ct = new MetaSchema(id, _constructor, fields);
+        let uniqueIdField: string;
+        if (Reflect.hasMetadata('uniqueId', target)){
+      
+            uniqueIdField = Reflect.getOwnMetadata('uniqueId', target);
+        } else {
+            uniqueIdField = 'id';
+        }
+
+        const ct = new MetaSchema(id, uniqueIdField, _constructor, fields);
         Registry.addSchema(id, ct);
         Reflect.defineMetadata('content-type', ct, _constructor);
     };
