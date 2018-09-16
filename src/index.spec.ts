@@ -5,10 +5,13 @@
 
 import test from 'ava';
 import "reflect-metadata";
-import { ContentType, Controls, Field, Registry , Validations } from './index';
+import { ID ,ContentType, Controls, Field, Registry , Validations } from './index';
 
 @ContentType("basketball-player")
 class BasketBallPlayer {
+
+  @Field()
+  id: ID | null = null;
 
   @Field(Controls.TextLine, [Validations.NotEmpty])
   name: string | null = null;
@@ -19,7 +22,7 @@ class BasketBallPlayer {
   @Field(Controls.Integer)
   jumps : number = 0;
  
-  @Field()
+  @Field(Controls.TextLine)
   imageUrl: string| null = null;
  }
 
@@ -41,18 +44,25 @@ test('Content-type "basketball-player" has specified fields', t => {
   const name = 'basketball-player';
   const bpMeta = Registry.ContentTypes[name];
   
+  t.is(bpMeta.Fields['id'].Id, 'id');
+  t.is(bpMeta.Fields['id'].Control, Controls.None);
+  t.deepEqual(bpMeta.Fields['id'].Validations, []);
+
   t.is(bpMeta.Fields['name'].Id, 'name');
   t.is(bpMeta.Fields['name'].Control, Controls.TextLine);
-  t.is(bpMeta.Fields['name'].Validations[0], Validations.NotEmpty);
+  t.deepEqual(bpMeta.Fields['name'].Validations[0], Validations.NotEmpty);
 
   t.is(bpMeta.Fields['comments'].Id, 'comments');
   t.is(bpMeta.Fields['comments'].Control, Controls.RichTextArea);
+  t.deepEqual(bpMeta.Fields['comments'].Validations, []);
 
   t.is(bpMeta.Fields['jumps'].Id, 'jumps');
   t.is(bpMeta.Fields['jumps'].Control, Controls.Integer);
+  t.deepEqual(bpMeta.Fields['jumps'].Validations, []);
 
   t.is(bpMeta.Fields['imageUrl'].Id, 'imageUrl');
   t.is(bpMeta.Fields['imageUrl'].Control, Controls.TextLine);
+  t.deepEqual(bpMeta.Fields['imageUrl'].Validations, []);
 
 });
 

@@ -5,10 +5,12 @@
 import {ID, SchemaRegistry, ContentType as MetaContentType, Field as MetaField, TypedMap} from './types';
 import "reflect-metadata";
 
+//Re-export
+export {ID} from './types'; 
 
 export const LIBRARY: {name: string, version: string} = {name: 'SchemaBuilder', version: '0.0.1'};
 
-export enum Controls {TextLine, RichTextArea, Integer, checkbox};
+export enum Controls {None, TextLine, RichTextArea, Integer, checkbox};
 
 export enum Validations {NotEmpty};
 
@@ -20,7 +22,7 @@ export function ContentType(id: ID) {
  *  Decorator Factory
  */
     return (_constructor: Function)=>{
-        console.log("ContentType:", _constructor);
+        //console.log("ContentType:", _constructor);
 
         let target = _constructor.prototype;
         let fields : TypedMap<MetaField>;
@@ -37,13 +39,13 @@ export function ContentType(id: ID) {
 }
 
 
-export function Field(control: Controls = Controls.TextLine, 
+export function Field(control: Controls = Controls.None, 
                       validations: Validations[] = []) {
     /**
      *  Decorator Factory
      */
     return (target: any, propertyKey: string) => {
-        console.log(`Field target: ${target}, propertyKey: ${propertyKey}`, target);
+        //console.log(`Field target: ${target}, propertyKey: ${propertyKey}`, target);
        
         let fields: TypedMap<MetaField>;
         if (!Reflect.hasMetadata('fields', target)){
