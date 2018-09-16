@@ -5,12 +5,12 @@
 
 import test from 'ava';
 import "reflect-metadata";
-import { ID ,ContentType, Controls, Field, Registry , Validations } from './index';
+import { ID, Id, Schema, Controls, Field, Registry, Validations } from './index';
 
-@ContentType("basketball-player")
+@Schema("basketball-player")
 class BasketBallPlayer {
 
-  @Field()
+  @Id @Field()
   id: ID | null = null;
 
   @Field(Controls.TextLine, [Validations.NotEmpty])
@@ -29,7 +29,7 @@ class BasketBallPlayer {
 test('Content-type is "basketball-player" defined by @ContentType', t => {
 
   const name = 'basketball-player';
-  const bpMeta = Registry.ContentTypes[name];
+  const bpMeta = Registry.Schemas[name];
   t.is(bpMeta.Id, name);
   t.is(bpMeta.Class, BasketBallPlayer);
   
@@ -42,7 +42,7 @@ test('Content-type is "basketball-player" defined by @ContentType', t => {
 test('Content-type "basketball-player" has specified fields', t => {
 
   const name = 'basketball-player';
-  const bpMeta = Registry.ContentTypes[name];
+  const bpMeta = Registry.Schemas[name];
   
   t.is(bpMeta.Fields['id'].Id, 'id');
   t.is(bpMeta.Fields['id'].Control, Controls.None);

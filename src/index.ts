@@ -2,7 +2,7 @@
 /* This as meta-programming break all sensible rules
    if not disabled in the whole file, it would have to 
    be filles with tslint:disable* directives */
-import {ID, SchemaRegistry, ContentType as MetaContentType, Field as MetaField, TypedMap} from './types';
+import {ID, SchemaRegistry, Schema as MetaSchema, Field as MetaField, TypedMap} from './types';
 import "reflect-metadata";
 
 //Re-export
@@ -17,7 +17,17 @@ export enum Validations {NotEmpty};
 export let Registry = new SchemaRegistry();
 
 
-export function ContentType(id: ID) {
+export function Id(target: any, propertyKey: string){
+    
+    if (!Reflect.hasMetadata('uniqueId', target)){
+      
+        Reflect.defineMetadata('uniqueId', propertyKey, target);
+    } else {
+        throw new Error(`${LIBRARY.name}: Duplicate Id on propery '${propertyKey}'`);
+    }
+}
+
+export function Schema(id: ID) {
 /**
  *  Decorator Factory
  */
@@ -32,8 +42,8 @@ export function ContentType(id: ID) {
             fields = {};
         }
         
-        const ct = new MetaContentType(id, _constructor, fields);
-        Registry.addContentType(id, ct);
+        const ct = new MetaSchema(id, _constructor, fields);
+        Registry.addSchema(id, ct);
         Reflect.defineMetadata('content-type', ct, _constructor);
     };
 }

@@ -11,8 +11,7 @@ export interface TypedMap<T> {
     [k: string]: T
 }
 
-export class ContentType {
-
+export class Schema {
 
     constructor(private id: ID, private _constructor: Function, private fields: TypedMap<Field>){}
 
@@ -27,12 +26,6 @@ export class ContentType {
     public get Fields(){
         return this.fields;
     }
-}
-
-
-export class Schema {
-
-    constructor(public id: ID){}
 }
 
 export class Field {
@@ -60,16 +53,16 @@ export class ContentItem {
 
 export class SchemaRegistry{
 
-    private _contenTypes: TypedMap<ContentType> = {}
+    private _schemas: TypedMap<Schema> = {}
 
-    get ContentTypes() { return this._contenTypes};
+    get Schemas() { return this._schemas};
 
-    addContentType(id: ID, ct: ContentType): void{
-        if (this._contenTypes[id]){
+    addSchema(id: ID, ct: Schema): void{
+        if (this._schemas[id]){
 
             throw new Error(`${LIBRARY.name}: ContentType '${id}' already defined.`);
         }
         
-        this._contenTypes[id] = ct;
+        this._schemas[id] = ct;
     }
 }
