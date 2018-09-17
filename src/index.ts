@@ -2,11 +2,11 @@
 /* This as meta-programming break all sensible rules
    if not disabled in the whole file, it would have to 
    be filles with tslint:disable* directives */
-import {IdType, SchemaRegistry, Schema as MetaSchema, Field as MetaField, TypedMap} from './types';
+import {IdType, SchemaRegistry, Schema as MetaSchema, Field as MetaField, MetaData, TypedMap} from './types';
 import "reflect-metadata";
 
 //Re-export
-export {IdType} from './types'; 
+export {IdType, MetaData} from './types'; 
 
 export const LIBRARY: {name: string, version: string} = {name: 'SchemaBuilder', version: '0.0.1'};
 
@@ -17,13 +17,35 @@ export enum Validations {NotEmpty};
 export let Registry = new SchemaRegistry();
 
 
+export function getSchema(target: string | Function): MetaSchema  | null {
+
+    let schema: MetaSchema | null;
+    if (typeof target === 'string'){
+        schema = Registry.Schemas[target];
+    } else {
+        schema = null;
+        for (let n in Registry.Schemas) {
+            let s = Registry.Schemas[n];
+            if(s.Class === target){
+                schema = s;
+                break;
+            }
+        }
+    }
+    
+    if (schema){
+        return schema;
+    } else{
+        return null;
+    }
+}
+
 export function Id(target: any, propertyKey: string){
     
-    if (!Reflect.hasMetadata('uniqueId', target)){
-      
-        Reflect.defineMetadata('uniqueId', propertyKey, target);
+    if (!Reflect.hasMetadata(MetaData.UniqueId, target)) {
+        Reflect.defineMetadata(MetaData.UniqueId, propertyKey, target);
     } else {
-        throw new Error(`${LIBRARY.name}: Duplicate Id on propery '${propertyKey}'`);
+      throw new Error(`${LIBRARY.name}: Duplicate Id on property '${propertyKey}'`);
     }
 }
 
@@ -36,23 +58,22 @@ export function Schema(id: IdType) {
 
         let target = _constructor.prototype;
         let fields : TypedMap<MetaField>;
-        if (Reflect.hasOwnMetadata('fields', target)){
-            fields = Reflect.getOwnMetadata('fields', target);
-        } else{
-            fields = {};
+        if (Reflect.hasOwnMetadata(MetaData.Fields, target)) {
+            fields = Reflect.getOwnMetadata(MetaData.Fields, target);
+        } else {
+          fields = {};
         }
         
         let uniqueIdField: string;
-        if (Reflect.hasMetadata('uniqueId', target)){
-      
-            uniqueIdField = Reflect.getOwnMetadata('uniqueId', target);
+        if (Reflect.hasMetadata(MetaData.UniqueId, target)) {
+            uniqueIdField = Reflect.getOwnMetadata(MetaData.UniqueId, target);
         } else {
-            uniqueIdField = 'id';
+          uniqueIdField = 'id';
         }
 
         const ct = new MetaSchema(id, uniqueIdField, _constructor, fields);
         Registry.addSchema(id, ct);
-        Reflect.defineMetadata('content-type', ct, _constructor);
+        Reflect.defineMetadata(MetaData.Schema, ct, _constructor);
     };
 }
 
@@ -66,39 +87,13 @@ export function Field(control: Controls = Controls.None,
         //console.log(`Field target: ${target}, propertyKey: ${propertyKey}`, target);
        
         let fields: TypedMap<MetaField>;
-        if (!Reflect.hasMetadata('fields', target)){
-            fields = {};
-            Reflect.defineMetadata('fields', fields, target);
+        if (!Reflect.hasMetadata(MetaData.Fields, target)) {
+          fields = {};
+            Reflect.defineMetadata(MetaData.Fields, fields, target);
         } else {
-            fields = Reflect.getMetadata('fields', target);
+            fields = Reflect.getMetadata(MetaData.Fields, target);
         }
         const f = new MetaField(propertyKey, control, validations);
         fields[propertyKey] = f;
     };  
 }
-
-
-/*
-export function Param(target: Object, propertyKey: string | symbol, parameterIndex: number) {
-
-    console.log(target);
-    console.log(propertyKey);
-    console.log(parameterIndex);
-}
-
-@ContentType("our-services")
-class Target {
-
-    constructor(value: number){ this.prop = value;}
-
-    @Field public prop: number;
-
-    doIt(times: number): void{
-        
-        console.log(this.prop);
-        console.log(times * this.prop);
-        console.log((this.constructor as AnyProp)._schema_builder.name);
-    }
-}
-
-*/

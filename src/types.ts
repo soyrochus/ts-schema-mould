@@ -7,8 +7,14 @@ import {LIBRARY, Controls, Validations} from './index';
 
 export type IdType = string;
 
+export enum MetaData {
+  Schema = 'schema',
+  Fields = 'fields',
+  UniqueId = 'uniqueId'
+}
+
 export interface TypedMap<T> {
-    [k: string]: T
+    [k: string]: T;   
 }
 
 export class Schema {
@@ -30,11 +36,12 @@ export class Schema {
     public get Fields(){
         return this.fields;
     }
+    
 }
 
 export class Field {
 
-    constructor(private id: IdType, private control: Controls, private validatons: Validations[]){}
+    constructor(private id: IdType, private control: Controls, private validations: Validations[]){}
 
     public get Id(){
         return this.id;
@@ -45,7 +52,7 @@ export class Field {
     }
 
     public get Validations(){
-        return this.validatons;
+        return this.validations;
     }
 
 }
