@@ -2,7 +2,7 @@
 /* This as meta-programming break all sensible rules
    if not disabled in the whole file, it would have to 
    be filles with tslint:disable* directives */
-import {IdType, SchemaRegistry, Schema as MetaSchema, Field as MetaField, MetaData, TypedMap} from './types';
+import {IdType, SchemaRegistry, Schema as MetaSchema, Field as MetaField, SelectField as MetaSelectField, MetaData, TypedMap} from './types';
 import "reflect-metadata";
 
 //Re-export
@@ -10,12 +10,13 @@ export {IdType, MetaData} from './types';
 
 export const LIBRARY: {name: string, version: string} = {name: 'SchemaBuilder', version: '0.0.1'};
 
-export enum Controls {None, TextLine, RichTextArea, Integer, checkbox};
+export enum Controls {None, TextLine, RichTextArea, Integer, checkbox, Select};
 
 export enum Validations {NotEmpty};
 
 export let Registry = new SchemaRegistry();
 
+export const NO_VALIDATIONS = [];
 
 export function getSchema(target: string | Function): MetaSchema  | null {
 
@@ -79,7 +80,7 @@ export function Schema(id: IdType) {
 
 
 export function Field(control: Controls = Controls.None, 
-                      validations: Validations[] = []) {
+                      validations: Validations[] = [], inputSource: string | null = null) {
     /**
      *  Decorator Factory
      */
@@ -93,7 +94,7 @@ export function Field(control: Controls = Controls.None,
         } else {
             fields = Reflect.getMetadata(MetaData.Fields, target);
         }
-        const f = new MetaField(propertyKey, control, validations);
+        const f = new MetaSelectField(propertyKey, control, validations, inputSource);
         fields[propertyKey] = f;
     };  
 }

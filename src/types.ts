@@ -40,7 +40,7 @@ export class Schema {
 }
 
 export class Field {
-
+  
     constructor(private id: IdType, private control: Controls, private validations: Validations[]){}
 
     public get Id(){
@@ -55,6 +55,17 @@ export class Field {
         return this.validations;
     }
 
+}
+
+export class SelectField extends Field {
+
+    constructor( id: IdType,  control: Controls,  validations: Validations[], private inputSource: string | null){
+        super(id, control, validations);
+    }
+
+    public get InputSource(){
+        return this.inputSource;
+    }
 }
 
 export class ContentItem {
