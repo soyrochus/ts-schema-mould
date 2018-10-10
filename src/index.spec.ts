@@ -5,7 +5,8 @@
 
 import test from 'ava';
 import "reflect-metadata";
-import { IdType, Id, Schema, Controls, Field, getSchema, MetaData,  Validations } from './index';
+import { IdType, Id, Schema, Controls, Field, getSchema, MetaData,  Validations, NO_VALIDATIONS } from './index';
+import { SelectField } from './types';
 
 @Schema("basketball-player")
 class BasketBallPlayer {
@@ -24,6 +25,9 @@ class BasketBallPlayer {
  
   @Field(Controls.TextLine)
   imageUrl: string| null = null;
+
+  @Field (Controls.Select, NO_VALIDATIONS ,"Teams")
+  team: string | null = null;
  }
 
 test('Schema is "basketball-player" defined by @ContentType', t => {
@@ -75,6 +79,12 @@ test('Content-type "basketball-player" has specified fields', t => {
     t.is(bpMeta.Fields['imageUrl'].Id, 'imageUrl');
     t.is(bpMeta.Fields['imageUrl'].Control, Controls.TextLine);
     t.deepEqual(bpMeta.Fields['imageUrl'].Validations, []);
+
+    t.is(bpMeta.Fields['team'].Id, 'team');
+    t.is(bpMeta.Fields['team'].Control, Controls.Select);
+    t.deepEqual(bpMeta.Fields['team'].Validations, []);
+    t.deepEqual((bpMeta.Fields['team'] as SelectField).InputSource, 'Teams');
+    
 
   } else {
     
