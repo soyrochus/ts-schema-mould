@@ -1,6 +1,6 @@
 {
-  "name": "schemabuilder",
-  "version": "0.1.0",
+  "name": "ts-schema-mould",
+  "version": "0.3.0",
   "description": "Schema builder infrastructure",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",

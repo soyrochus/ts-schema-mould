@@ -1,4 +1,4 @@
-# schemabuilder
+# ts-schema-mould
 
 Generic TypeScript Decorators to create Schema's denoting data-types & UI forms
 
