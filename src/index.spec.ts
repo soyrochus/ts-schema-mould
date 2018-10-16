@@ -28,6 +28,9 @@ class BasketBallPlayer {
 
   @Field (Controls.Select, NO_VALIDATIONS ,"Teams")
   team: string | null = null;
+
+  @Field(Controls.Date)
+  date: string| null = null;
  }
 
 test('Schema is "basketball-player" defined by @ContentType', t => {
@@ -84,6 +87,9 @@ test('Content-type "basketball-player" has specified fields', t => {
     t.is(bpMeta.Fields['team'].Control, Controls.Select);
     t.deepEqual(bpMeta.Fields['team'].Validations, []);
     t.deepEqual((bpMeta.Fields['team'] as SelectField).InputSource, 'Teams');
+
+    t.is(bpMeta.Fields['date'].Id, 'date');
+    t.is(bpMeta.Fields['date'].Control, Controls.Date);
     
 
   } else {
