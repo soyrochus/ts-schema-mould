@@ -10,7 +10,7 @@ export {IdType, MetaData} from './types';
 
 export const LIBRARY: {name: string, version: string} = {name: 'SchemaBuilder', version: '0.0.1'};
 
-export enum Controls {None, TextLine, RichTextArea, Integer, checkbox, Select};
+export enum Controls {None, TextLine, RichTextArea, Integer, checkbox, Select, Date };
 
 export enum Validations {NotEmpty};
 
