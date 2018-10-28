@@ -2,19 +2,19 @@
 /* This as meta-programming break all sensible rules
    if not disabled in the whole file, it would have to 
    be filles with tslint:disable* directives */
-import {IdType, SchemaRegistry, Schema as MetaSchema, Field as MetaField, SelectField as MetaSelectField, MetaData, TypedMap} from './types';
+import {IdType, Registry as RegistryConstructor, Schema as MetaSchema, Field as MetaField, SelectField as MetaSelectField, MetaData, TypedMap, SchemaView} from './types';
 import "reflect-metadata";
 
 //Re-export
 export {IdType, MetaData} from './types'; 
 
-export const LIBRARY: {name: string, version: string} = {name: 'SchemaBuilder', version: '0.0.1'};
+export const LIBRARY: {name: string, version: string} = {name: 'SchemaBuilder', version: '0.5.0'};
 
-export enum Controls {None, TextLine, RichTextArea, Integer, checkbox, Select, Date };
+export enum Controls {None, TextLine, RichTextArea, Integer, Checkbox, Select, Date };
 
 export enum Validations {NotEmpty};
 
-export let Registry = new SchemaRegistry();
+export let Registry = new RegistryConstructor();
 
 export const NO_VALIDATIONS = [];
 
@@ -33,12 +33,7 @@ export function getSchema(target: string | Function): MetaSchema  | null {
             }
         }
     }
-    
-    if (schema){
-        return schema;
-    } else{
-        return null;
-    }
+    return schema;
 }
 
 export function Id(target: any, propertyKey: string){
@@ -46,11 +41,11 @@ export function Id(target: any, propertyKey: string){
     if (!Reflect.hasMetadata(MetaData.UniqueId, target)) {
         Reflect.defineMetadata(MetaData.UniqueId, propertyKey, target);
     } else {
-      throw new Error(`${LIBRARY.name}: Duplicate Id on property '${propertyKey}'`);
+        throw new Error(`${LIBRARY.name}: Duplicate Id on property '${propertyKey}'`);
     }
 }
 
-export function Schema(id: IdType) {
+export function Schema(id: IdType, view: SchemaView | null) {
 /**
  *  Decorator Factory
  */
@@ -72,7 +67,7 @@ export function Schema(id: IdType) {
           uniqueIdField = 'id';
         }
 
-        const ct = new MetaSchema(id, uniqueIdField, _constructor, fields);
+        const ct = new MetaSchema(id, uniqueIdField, _constructor, fields, view);
         Registry.addSchema(id, ct);
         Reflect.defineMetadata(MetaData.Schema, ct, _constructor);
     };
