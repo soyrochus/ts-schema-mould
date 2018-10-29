@@ -27,6 +27,11 @@ let teamview : SchemaView = {
   layout: [{ field: 'name'}, { field: 'rank'}]
 };
 
+@Schema('no-field-no-view')
+class NoFieldNoView{
+
+}
+
 @Schema('basketball-team', teamview)
 class BasketballTeam{
   @Id @Field()
@@ -195,6 +200,27 @@ test('"teamview" is View of Basketball Team', t => {
     } else {
       t.fail(`Schema ${name} has invalid view`);
     }
+
+  } else {
+
+    t.fail('Schema cannot be null');
+  }
+
+});
+
+
+test('"NoFieldNoView" has no Fields nor View', t => {
+
+  const name = 'no-field-no-view';
+
+  const bpMeta = getSchema(name);
+  const bpMeta2 = getSchema(NoFieldNoView);
+  t.is(bpMeta, bpMeta2);
+
+  if (bpMeta) {
+
+    t.is(Object.keys(bpMeta.Fields).length, 0);
+    t.falsy(bpMeta.View);
 
   } else {
 

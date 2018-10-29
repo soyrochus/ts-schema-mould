@@ -50,7 +50,7 @@ export class Schema {
          private fields: TypedMap<Field>, 
          private view: SchemaView | null= null){
             
-            if (this.view == null){
+            if (!this.view){
                 return;
             } else if((this.view.title.length == 0) || (this.view.layout.length == 0)){
                 throw new Error(`${LIBRARY.name}: Schema '${id}' has invalid view (no title or layout.lenght == 0).`); 

@@ -45,7 +45,7 @@ export function Id(target: any, propertyKey: string){
     }
 }
 
-export function Schema(id: IdType, view: SchemaView | null) {
+export function Schema(id: IdType, view?: SchemaView) {
 /**
  *  Decorator Factory
  */
