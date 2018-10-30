@@ -5,35 +5,35 @@
 
 import test from 'ava';
 import "reflect-metadata";
-import { IdType, Id, Schema, Controls, Field, getSchema, MetaData, Validations, NO_VALIDATIONS } from './index';
+import { IdType, Id, Schema, CompoundSchema, EmbeddedSchema, Controls, Field, getSchema, getCompoundSchema, MetaData, Validations, NO_VALIDATIONS } from './index';
 import { SelectField, SchemaView, isLayoutSegment, LayoutSegment, Field as MetaField, FieldDef } from './types';
 
 
 let basketballview: SchemaView = {
 
-    title: "Basketball player data",
-    layout: [{
-      title: 'Player',
-      rows: [[{ field: 'name', props: {width: 200, icon: 'mandatory' }}, { field: 'jumps'}]]
-    }, {
-      title: 'General',
-      rows: [[{ field: 'comments', props: {width: 200 }}, { field: 'imageUrl' }],
-              [{ field: 'team'}, { field: 'date' }]]
-    }]
+  title: "Basketball player data",
+  layout: [{
+    title: 'Player',
+    rows: [[{ field: 'name', props: { width: 200, icon: 'mandatory' } }, { field: 'jumps' }]]
+  }, {
+    title: 'General',
+    rows: [[{ field: 'comments', props: { width: 200 } }, { field: 'imageUrl' }],
+    [{ field: 'team' }, { field: 'date' }]]
+  }]
 };
 
-let teamview : SchemaView = {
+let teamview: SchemaView = {
   title: "Basketball player data",
-  layout: [{ field: 'name'}, { field: 'rank'}]
+  layout: [{ field: 'name' }, { field: 'rank' }]
 };
 
 @Schema('no-field-no-view')
-class NoFieldNoView{
+class NoFieldNoView {
 
 }
 
 @Schema('basketball-team', teamview)
-class BasketballTeam{
+class BasketballTeam {
   @Id @Field()
   UUID: IdType | null = null;
 
@@ -69,6 +69,21 @@ class BasketBallPlayer {
   date: string | null = null;
 }
 
+@CompoundSchema('basketball-player-team')
+class BasketBallPlayerTeam {
+
+  constructor() {
+    this.player = new BasketBallPlayer();
+    this.team = new BasketballTeam();
+  }
+
+  @EmbeddedSchema("basketball-player")
+  public player: BasketBallPlayer;
+  @EmbeddedSchema("basketball-team")
+  public team: BasketballTeam;
+
+}
+
 test('Schema is "basketball-player" defined by @ContentType', t => {
 
   const name = 'basketball-player';
@@ -76,7 +91,6 @@ test('Schema is "basketball-player" defined by @ContentType', t => {
   //const bpMeta = Registry.Schemas[name];
   const bpMeta = getSchema(name);
   const bpMeta2 = getSchema(BasketBallPlayer);
-
   t.is(bpMeta, bpMeta2);
 
   if (bpMeta) {
@@ -146,22 +160,22 @@ test('"basketball" is View of Basketball Player', t => {
   if (bpMeta) {
 
     //t.deepEqual(basketballview(), bpMeta.View);
-    if(bpMeta.View && bpMeta.View.layout.length > 0){
-      if (isLayoutSegment(bpMeta.View.layout[0])){
-         let layout0 = bpMeta.View.layout[0] as LayoutSegment;
+    if (bpMeta.View && bpMeta.View.layout.length > 0) {
+      if (isLayoutSegment(bpMeta.View.layout[0])) {
+        let layout0 = bpMeta.View.layout[0] as LayoutSegment;
 
-         let field1 = (layout0.rows[0][0].field as MetaField); 
-         let props1 = layout0.rows[0][0].props || {};
-         t.is(field1.Id, 'name');
-         t.is(field1.Control, Controls.TextLine);
-         t.is(props1.icon, 'mandatory');
+        let field1 = (layout0.rows[0][0].field as MetaField);
+        let props1 = layout0.rows[0][0].props || {};
+        t.is(field1.Id, 'name');
+        t.is(field1.Control, Controls.TextLine);
+        t.is(props1.icon, 'mandatory');
 
-         let layout1 = bpMeta.View.layout[1] as LayoutSegment;
-         let field2 = (layout1.rows[0][1].field as MetaField); 
-         t.is(field2.Id, 'imageUrl');
+        let layout1 = bpMeta.View.layout[1] as LayoutSegment;
+        let field2 = (layout1.rows[0][1].field as MetaField);
+        t.is(field2.Id, 'imageUrl');
 
-         let field3 = (layout1.rows[1][1].field as MetaField); 
-         t.is(field3.Id, 'date');
+        let field3 = (layout1.rows[1][1].field as MetaField);
+        t.is(field3.Id, 'date');
       }
     } else {
       t.fail(`Schema ${name} has invalid view`);
@@ -171,9 +185,7 @@ test('"basketball" is View of Basketball Player', t => {
 
     t.fail('Schema cannot be null');
   }
-
 });
-
 
 test('"teamview" is View of Basketball Team', t => {
 
@@ -186,16 +198,16 @@ test('"teamview" is View of Basketball Team', t => {
   if (bpMeta) {
 
     //t.deepEqual(basketballview(), bpMeta.View);
-    if(bpMeta.View && bpMeta.View.layout.length > 0){
-      if (!isLayoutSegment(bpMeta.View.layout[0])){
-         let fielddef0 = (bpMeta.View.layout[0] as FieldDef);
-         let field0 = fielddef0.field as MetaField;
-         t.is(field0.Id, 'name');
-    
-         let fielddef1 = (bpMeta.View.layout[1] as FieldDef);
-         let field1 = fielddef1.field as MetaField;
-         t.is(field1.Id, 'rank'); 
-         t.is(field1.Control, Controls.Integer);
+    if (bpMeta.View && bpMeta.View.layout.length > 0) {
+      if (!isLayoutSegment(bpMeta.View.layout[0])) {
+        let fielddef0 = (bpMeta.View.layout[0] as FieldDef);
+        let field0 = fielddef0.field as MetaField;
+        t.is(field0.Id, 'name');
+
+        let fielddef1 = (bpMeta.View.layout[1] as FieldDef);
+        let field1 = fielddef1.field as MetaField;
+        t.is(field1.Id, 'rank');
+        t.is(field1.Control, Controls.Integer);
       }
     } else {
       t.fail(`Schema ${name} has invalid view`);
@@ -226,5 +238,28 @@ test('"NoFieldNoView" has no Fields nor View', t => {
 
     t.fail('Schema cannot be null');
   }
+});
 
+
+test('"BasketBallPlayerTeam" is a CompoundSchema', t => {
+
+  const name = 'basketball-player-team';
+
+  const bpMeta = getCompoundSchema(name);
+  const bpMeta2 = getCompoundSchema(BasketBallPlayerTeam);
+
+  t.is(bpMeta, bpMeta2);
+
+  const playername = 'basketball-player';
+  const playerproperty = 'player';
+  if (bpMeta) {
+
+    const bpMeta3 = getSchema(playername);
+    const bpMeta4 = bpMeta.EmbeddedSchemas[playerproperty];
+
+    t.is(bpMeta3, bpMeta4);
+
+  } else {
+    t.fail('CompoundSchema cannot be null');
+  }
 });

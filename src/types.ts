@@ -10,13 +10,15 @@ export type IdType = string;
 export enum MetaData {
   Schema = 'schema',
   Fields = 'fields',
-  UniqueId = 'uniqueId'
+  UniqueId = 'uniqueId',
+  CompoundSchema = 'compoundSchema',
+  EmbeddedSchemas = 'embeddedSchemas'
 }
 
 export interface SimpleProps {
     [name: string]: number | boolean | string;
 }
-  
+
 export interface SchemaView {
     title: string;   
     layout: FieldDef[] | LayoutDef;
@@ -40,7 +42,6 @@ export interface TypedMap<T> {
 export function isLayoutSegment(target:  FieldDef | LayoutSegment): target is LayoutSegment {
     return (<LayoutSegment>target).title !== undefined;
  }
-
 
 export class Schema {
 
@@ -99,8 +100,46 @@ export class Schema {
     public get View(){
         return this.view
     }
-    
 }
+
+export class CompoundSchema {
+
+    constructor(private id: IdType,  
+         private uniqueIdField: string,
+         private _constructor: Function, 
+         private embeddedSchemaNames: TypedMap<string>){}
+    
+    private _EmbeddedSchemas: TypedMap<Schema> | null = null;
+            
+    public get Id(){
+        return this.id;
+    }
+
+    public get UniqueIdField(){ 
+        return this.uniqueIdField;
+    }
+
+    public get Class(){
+        return this._constructor;
+    }
+
+    public get EmbeddedSchemas(){
+
+        // already initialized
+        if (this._EmbeddedSchemas !== null){
+            return this._EmbeddedSchemas;
+        }
+        // lazy init
+        this._EmbeddedSchemas = {};
+        for(let key in this.embeddedSchemaNames){
+            this._EmbeddedSchemas[key] = Registry.Schemas[this.embeddedSchemaNames[key]];
+        }
+
+        return this._EmbeddedSchemas;
+    }
+
+}
+
 
 export class Field {
   
@@ -136,11 +175,13 @@ export class ContentItem {
     constructor(public id: IdType){}
 }
 
-export class Registry{
+export class RegistryConstructor{
 
     private _schemas: TypedMap<Schema> = {};
+    private _compoundSchemas: TypedMap<CompoundSchema> = {};
 
     get Schemas() { return this._schemas};
+    get CompoundSchemas() { return this._compoundSchemas };
 
     addSchema(id: IdType, ct: Schema): void{
         if (this._schemas[id]){
@@ -150,4 +191,15 @@ export class Registry{
         
         this._schemas[id] = ct;
     }
+
+    addCompoundSchema(id: IdType, ct: CompoundSchema): void{
+        if (this._compoundSchemas[id]){
+
+            throw new Error(`${LIBRARY.name}: CompoundSchema '${id}' already defined.`);
+        }
+        
+        this._compoundSchemas[id] = ct;
+    }
 }
+
+export let Registry = new RegistryConstructor();
