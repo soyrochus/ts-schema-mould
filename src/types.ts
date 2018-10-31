@@ -3,7 +3,7 @@
    if not disabled in the whole file, it would have to 
    be filles with tslint:disable* directives */
 
-import {LIBRARY, Controls, Validations} from './index';
+import {LIBRARY, Controls, Validations, getSchema} from './index';
 
 export type IdType = string;
 
@@ -107,7 +107,7 @@ export class CompoundSchema {
     constructor(private id: IdType,  
          private uniqueIdField: string,
          private _constructor: Function, 
-         private embeddedSchemaNames: TypedMap<string>){}
+         private embeddedSchemaNames: TypedMap<string | Function>){}
     
     private _EmbeddedSchemas: TypedMap<Schema> | null = null;
             
@@ -132,7 +132,14 @@ export class CompoundSchema {
         // lazy init
         this._EmbeddedSchemas = {};
         for(let key in this.embeddedSchemaNames){
-            this._EmbeddedSchemas[key] = Registry.Schemas[this.embeddedSchemaNames[key]];
+            
+            let schemaId = this.embeddedSchemaNames[key];
+            let schema = getSchema(schemaId);
+            if (schema){
+                this._EmbeddedSchemas[key] = schema;
+            } else {
+                throw new Error(`${LIBRARY.name}: Schema '${schemaId}' cannot be null.`);
+            }
         }
 
         return this._EmbeddedSchemas;

@@ -69,7 +69,7 @@ class BasketBallPlayer {
   date: string | null = null;
 }
 
-@CompoundSchema('basketball-player-team')
+@CompoundSchema()
 class BasketBallPlayerTeam {
 
   constructor() {
@@ -79,7 +79,7 @@ class BasketBallPlayerTeam {
 
   @EmbeddedSchema("basketball-player")
   public player: BasketBallPlayer;
-  @EmbeddedSchema("basketball-team")
+  @EmbeddedSchema(BasketballTeam)
   public team: BasketballTeam;
 
 }
@@ -243,7 +243,7 @@ test('"NoFieldNoView" has no Fields nor View', t => {
 
 test('"BasketBallPlayerTeam" is a CompoundSchema', t => {
 
-  const name = 'basketball-player-team';
+  const name = 'BasketBallPlayerTeam';
 
   const bpMeta = getCompoundSchema(name);
   const bpMeta2 = getCompoundSchema(BasketBallPlayerTeam);

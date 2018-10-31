@@ -70,7 +70,7 @@ export function Id(target: any, propertyKey: string) {
     }
 }
 
-export function Schema(id: IdType, view?: SchemaView) {
+export function Schema(id?: IdType, view?: SchemaView) {
     /**
      *  Decorator Factory
      */
@@ -78,6 +78,12 @@ export function Schema(id: IdType, view?: SchemaView) {
         //console.log("ContentType:", _constructor);
 
         let target = _constructor.prototype;
+        let _id: string;
+        if(typeof(id) === 'undefined'){
+            _id = _constructor.name;
+        } else {
+            _id = id; 
+        }
         let fields: TypedMap<MetaField>;
         if (Reflect.hasOwnMetadata(MetaData.Fields, target)) {
             fields = Reflect.getOwnMetadata(MetaData.Fields, target);
@@ -92,19 +98,25 @@ export function Schema(id: IdType, view?: SchemaView) {
             uniqueIdField = 'id';
         }
 
-        const ct = new MetaSchema(id, uniqueIdField, _constructor, fields, view);
-        Registry.addSchema(id, ct);
+        const ct = new MetaSchema(_id, uniqueIdField, _constructor, fields, view);
+        Registry.addSchema(_id, ct);
         Reflect.defineMetadata(MetaData.Schema, ct, _constructor);
     };
 }
 
-export function CompoundSchema(id: IdType) {
+export function CompoundSchema(id?: IdType) {
 
     return (_constructor: Function) => {
         //console.log("ContentType:", _constructor);
 
         let target = _constructor.prototype;
-        let fields: TypedMap<string>;
+        let _id: string;
+        if(typeof(id) === 'undefined'){
+            _id = _constructor.name;
+        } else {
+            _id = id; 
+        }
+        let fields: TypedMap<string | Function>;
         if (Reflect.hasOwnMetadata(MetaData.EmbeddedSchemas, target)) {
             fields = Reflect.getOwnMetadata(MetaData.EmbeddedSchemas, target);
         } else {
@@ -118,8 +130,8 @@ export function CompoundSchema(id: IdType) {
             uniqueIdField = 'id';
         }
 
-        const ct = new MetaCompoundSchema(id, uniqueIdField, _constructor, fields);
-        Registry.addCompoundSchema(id, ct);
+        const ct = new MetaCompoundSchema(_id, uniqueIdField, _constructor, fields);
+        Registry.addCompoundSchema(_id, ct);
         Reflect.defineMetadata(MetaData.CompoundSchema, ct, _constructor);
     };
 }
@@ -144,13 +156,14 @@ export function Field(control: Controls = Controls.None,
     };
 }
 
-export function EmbeddedSchema(id: string) {
+export function EmbeddedSchema(id: string | Function) {
     /**
      *  Decorator Factory
      */
     return (target: any, propertyKey: string) => {
        
-        let schemas: TypedMap<string>;
+       
+        let schemas: TypedMap<string | Function>;
 
         if (!Reflect.hasMetadata(MetaData.EmbeddedSchemas, target)) {
             schemas = {};
